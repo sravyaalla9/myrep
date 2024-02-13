@@ -2,7 +2,7 @@ node('built-in')
 {
     stage('contdownload') 
     {
-        git 'https://github.com/intelliqittrainings/maven.git'
+        git 'https://github.com/sravyaalla9/myrep.git'
     }
        stage('contbuild') 
     {
