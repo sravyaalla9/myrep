@@ -1,0 +1,25 @@
+node('built-in') 
+{
+    stage('contdownload') 
+    {
+        git 'https://github.com/intelliqittrainings/maven.git'
+    }
+       stage('contbuild') 
+    {
+        sh 'mvn package'
+    }
+         stage('contdeploy') 
+    {
+        deploy adapters: [tomcat9(credentialsId: '1b7d0ed7-9277-4686-9238-70932736df82', path: '', url: 'http://172.31.37.6:8080')], contextPath: 'testapp', war: '**/*.war'
+    }
+    stage('conttesting') 
+    {
+        git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
+        sh 'java -jar /var/lib/jenkins/workspace/declarativepipeline/testing.jar'
+    }
+       stage('contdelivery') 
+    {
+        input message: 'needs manager approval', submitter: 'ram'
+        deploy adapters: [tomcat9(credentialsId: '1b7d0ed7-9277-4686-9238-70932736df82', path: '', url: 'http://172.31.35.142:8080')], contextPath: 'prodapp', war: '**/*.war'
+    }
+}
