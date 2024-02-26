@@ -1,25 +1,43 @@
-node('built-in') 
+pipeline
 {
-    stage('contdownload') 
+    agent any
+    stages
     {
-        git 'https://github.com/sravyaalla9/myrep.git'
-    }
-       stage('contbuild') 
-    {
-        sh 'mvn package'
-    }
-         stage('contdeploy') 
-    {
-        deploy adapters: [tomcat9(credentialsId: '1b7d0ed7-9277-4686-9238-70932736df82', path: '', url: 'http://172.31.37.6:8080')], contextPath: 'testapp', war: '**/*.war'
-    }
-    stage('conttesting') 
-    {
-        git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
-        sh 'java -jar /var/lib/jenkins/workspace/declarativepipeline/testing.jar'
-    }
-       stage('contdelivery') 
-    {
-        input message: 'needs manager approval', submitter: 'ram'
-        deploy adapters: [tomcat9(credentialsId: '1b7d0ed7-9277-4686-9238-70932736df82', path: '', url: 'http://172.31.35.142:8080')], contextPath: 'prodapp', war: '**/*.war'
+        stage('contdownload')
+        {
+            steps
+            {
+                git 'https://github.com/intelliqittrainings/maven.git'
+            }
+        }
+        stage('contbuild')
+        {
+            steps
+            {
+                sh 'mvn package'
+            }
+        }    
+        stage('contdeployment')
+        {
+            steps
+            {
+              sh 'scp /var/lib/jenkins/workspace/declarativepipeline2/webapp/target/webapp.war ubuntu@172.31.37.6:/var/lib/tomcat9/webapps/testapp.war'  
+            }
+        }
+        stage('conttesting')
+        {
+            steps
+            {
+                git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
+                sh 'java -jar /var/lib/jenkins/workspace/declarativepipeline2/testing.jar'
+            }
+        }
+         stage('contdelivery')
+        {
+            steps
+            {
+                sh 'scp /var/lib/jenkins/workspace/declarativepipeline2/webapp/target/webapp.war ubuntu@172.31.35.142:/var/lib/tomcat9/webapps/prodapp.war'
+            }
+        }    
     }
 }
